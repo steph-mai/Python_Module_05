@@ -6,7 +6,7 @@
 #  By: stmaire <stmaire@student.42.fr>           +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 15:12:33 by stmaire         #+#    #+#               #
-#  Updated: 2026/02/24 17:20:14 by stmaire         ###   ########.fr        #
+#  Updated: 2026/02/24 17:21:12 by stmaire         ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -224,6 +224,7 @@ class StreamProcessor:
         label = "readings" if "Environmental" in stats else\
                 "operations" if "Financial" in stats else "events" if "Events" in stats
         
+        #TODO affichage
             
     
      
