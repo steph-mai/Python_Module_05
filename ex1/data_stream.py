@@ -272,10 +272,7 @@ class EventStream(DataStream):
         if data_count == 0:
             return "No valid data in batch."
 
-        error_count = 0
-        for e in checked_list:
-            if e.lower() == "error":
-                error_count += 1
+        error_count = len([e for e in checked_list if e.lower() == "error"])
 
         header = f"Processing event batch: [{", ".join(checked_list)}]"
         formatted_events = "events" if data_count > 1 else "event"
