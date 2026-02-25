@@ -40,7 +40,7 @@ class SensorStream(DataStream):
         super().__init__(stream_id)
 
     def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
-        """Filter valid data from data batch. Handle high-priority criteria"""
+        """Filter valid sensor data from data batch. Handle high-priority criteria"""
         try:
             checked_list = []
             valid_keys = ["temp", "pressure", "humidity"]
@@ -72,6 +72,13 @@ class SensorStream(DataStream):
             return[]
 
     def process_batch(self, data_batch: List[Any]) -> str:
+        """
+        Process a batch of sensor data.
+
+        Calculates the average temperature from valid readings, updates the 
+        internal counter, and returns a formatted string for display.
+        """
+
         checked_list = self.filter_data(data_batch)
         data_count = len(checked_list)
         self.count += data_count
@@ -104,6 +111,7 @@ class TransactionStream(DataStream):
         super().__init__(stream_id)
 
     def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
+        """Filter valid transactions data from data batch. Handle high-priority criteria"""
         try:
             checked_list = []
             valid_keys = ["buy", "sell"]
@@ -137,6 +145,12 @@ class TransactionStream(DataStream):
             return[]
 
     def process_batch(self, data_batch: List[Any]) -> str:
+        """
+        Process a batch of transactions data.
+
+        Calculates the transactions net flow from valid readings, updates the 
+        internal counter, and returns a formatted string for display.
+        """
         checked_list = self.filter_data(data_batch)
         data_count = len(checked_list)
         self.count += data_count
@@ -172,6 +186,7 @@ class EventStream(DataStream):
           super().__init__(stream_id)
     
     def filter_data(self, data_batch: List[Any], criteria: Optional[str] = None) -> List[Any]:
+        """Filter valid system events data from data batch."""
         checked_list = []
         valid_words = ["login", "error", "logout"]
         
@@ -187,6 +202,13 @@ class EventStream(DataStream):
         return checked_list
                          
     def process_batch(self, data_batch: List[Any]) -> str:
+        """
+        Process a batch of events data.
+
+        Counts events and errors, updates the 
+        internal counter, and returns a formatted string for display.
+        """
+
         checked_list = self.filter_data(data_batch)
         data_count = len(checked_list)
         self.count += data_count
@@ -212,19 +234,90 @@ class EventStream(DataStream):
         return (stats)
 
 class StreamProcessor:
-    def __init__(self, streams: List[DataStream]) -> None:
-          self.streams = streams
+    def __init__(self, stream_tools: List[DataStream]) -> None:
+          self.stream_tools = stream_tools
 
-    def process_all_types(self, data_stream: Dict[str, Any]):
-        for stream in self.streams:
-            batch = data_stream.get(stream.stream_id, [])
-            stream.process_batch(batch)
-            stats = stream.get_stats()
+    def process_all_types(self, data_stream: Dict[str, Any]) -> None:
+        """Process any type of data"""
+
+        print("=== Polymorphic Stream Processing ===")
+        print("Processing mixed stream types through unified interface...")
+        print("\nBatch 1 Results:")
         
-        label = "readings" if "Environmental" in stats else\
-                "operations" if "Financial" in stats else "events" if "Events" in stats
+
+        for tool in self.stream_tools:
+            
+            batch = data_stream.get(tool.stream_id, [])
+            print(tool.process_batch(batch))
+            stats = tool.get_stats()
         
-        #TODO affichage
+            label = "readings" if "Environmental" in stats["type"] else\
+                "operations" if "Financial" in stats["type"] else \
+                "events" 
+            stream_name= "Sensor" if "Environmental" in stats["type"] else\
+                "Transaction" if "Financial" in stats["type"] else\
+                "Event"
+
+            print(f"- {stream_name} data: {stats["elements_processed"]} {label} processed\n")
+    
+    def high_security_process(self, data_stream: Dict[str, Any]) -> None:
+        """Handle high-security filter from all types of data"""
+
+        print("Stream filtering active: High-priority data only")
+
+        for tool in self.stream_tools:
+
+            batch = data_stream.get(tool.stream_id, [])
+            final_message = []
+            
+            high_priority_data = tool.filter_data(batch, criteria="High-priority")
+            count = len(high_priority_data)
+
+            stats = tool.get_stats()
+            if "Environmental" in stats["type"]:
+                message = "critical sensor alert" if count <= 1 else "critical sensor alerts"
+                final_message.append(f"{count} {message}")
+            elif "Financial" in stats["type"]:
+                message = "large transaction" if count <= 1 else "large transactions"
+                final_message.append(f"{count} {message}")
+
+        print(f"Filtered results: {', '.join(final_message)}")
+
+if __name__ == "__main__":
+    print("=== CODE NEXUS - POLYMORPHIC STREAM SYSTEM ===\n")
+
+   
+    transactions_tool = TransactionStream("TRANS_001")
+    events_tool = EventStream("EVENT_001")
+    
+    data_stream = {
+        "SENSOR_001": [
+            {"temp": 22.5}, 
+            {"temp": 40.0},  # Haute priorité
+            {"temp": 38.5}   # Haute priorité
+        ],
+        "TRANS_001": [
+            {"buy": 50.0}, 
+            {"sell": 1200.0}, # Haute priorité
+            {"buy": 15.0},
+            {"sell": 30.0}
+        ],
+        "EVENT_001": ["login", "error", "logout"]
+    }
+
+    print("Initializing Sensor Stream...")
+    sensor_tool = SensorStream("SENSOR_001")
+    stats_sensor = sensor_tool.get_stats()
+    print(f"Stream ID: {sensor_tool.stream_id}, Type: {stats_sensor['type']}")
+    data_batch = [{"temp": 22.5}, {"humidity": 65}, {"pressure": 1013}]
+    print(sensor_tool.process_batch(data_batch))
+
+    processor = StreamProcessor([sensor_tool, transactions_tool, events_tool])
+    processor.process_all_types(data_stream)
+    processor.high_security_process(data_stream)
+
+    print("All streams processed successfully. Nexus throughput optimal.")
+
             
     
      
