@@ -1,3 +1,15 @@
+# ************************************************************************* #
+#                                                                           #
+#                                                      :::      ::::::::    #
+#  nexus_pipeline.py                                 :+:      :+:    :+:    #
+#                                                  +:+ +:+         +:+      #
+#  By: stmaire <stmaire@student.42.fr>           +#+  +:+       +#+         #
+#                                              +#+#+#+#+#+   +#+            #
+#  Created: 2026/02/27 08:36:34 by stmaire         #+#    #+#               #
+#  Updated: 2026/02/27 08:36:39 by stmaire         ###   ########.fr        #
+#                                                                           #
+# ************************************************************************* #
+
 from abc import ABC, abstractmethod
 from typing import List, Any, Protocol, Union
 from collections import Counter

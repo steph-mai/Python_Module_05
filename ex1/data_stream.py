@@ -6,7 +6,7 @@
 #  By: stmaire <stmaire@student.42.fr>           +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 15:12:33 by stmaire         #+#    #+#               #
-#  Updated: 2026/02/24 17:21:12 by stmaire         ###   ########.fr        #
+#  Updated: 2026/02/27 08:35:03 by stmaire         ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -216,7 +216,7 @@ class TransactionStream(DataStream):
 
         header = (
             f"Processing transaction batch: "
-            f"[{(", ").join(formatted_list)}]"
+            f"[{', '.join(formatted_list)}]"
         )
         analysis = (
             f"Transaction analysis: "
@@ -273,8 +273,8 @@ class EventStream(DataStream):
             return "No valid data in batch."
 
         error_count = len([e for e in checked_list if e.lower() == "error"])
+        header = f"Processing event batch: [{', '.join(checked_list)}]"
 
-        header = f"Processing event batch: [{", ".join(checked_list)}]"
         formatted_events = "events" if data_count > 1 else "event"
         analysis = (
             f"Event analysis: "
@@ -314,7 +314,7 @@ class StreamProcessor:
                 "Event"
 
             print(f"- {stream_name} data: "
-                  f"{stats["elements_processed"]} {label} processed")
+                  f"{stats['elements_processed']} {label} processed")
 
     def high_security_process(self, data_stream: Dict[str, Any]) -> None:
         """Handle high-security filter from all types of data"""
